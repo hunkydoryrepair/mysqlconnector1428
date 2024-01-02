@@ -8,15 +8,18 @@ namespace MySqlConnectorWinForms1428
 {
     public partial class Form1 : Form
     {
+        const String CONNECTIONSTRING = "Server=127.0.0.1;Port=3306;Database=plposdev;UID=devpos;Pwd=happy123;Charset=utf8mb4;ConnectionReset=true;maxpoolsize=1";
+
         private String results = "";
         public Form1()
         {
             InitializeComponent();
+            textBox1.Text = CONNECTIONSTRING;
         }
 
         private async Task DoSomeSync()
         {
-            using (var conn = new MySqlConnection("Server=127.0.0.1;Port=3306;Database=plposdev;UID=devpos;Pwd=happy123;Charset=utf8mb4;ConnectionReset=true;maxpoolsize=1"))
+            using (var conn = new MySqlConnection(textBox1.Text))
             {
                 await conn.OpenAsync().ConfigureAwait(false);
                 results += String.Format("After OpenAsync: {0}, Thread {1}\n", SynchronizationContext.Current?.GetType().Name ?? "null", Thread.CurrentThread.ManagedThreadId);
@@ -33,11 +36,13 @@ namespace MySqlConnectorWinForms1428
 
             richTextBox1.Text = results;
 
+            var connectionString = textBox1.Text;
+
             Task.Run(async () =>
             {
                 // new context
                 results += String.Format("Task.Run Context {0} (always null), Thread {1}\n", SynchronizationContext.Current?.GetType().Name ?? "null", Thread.CurrentThread.ManagedThreadId);
-                using (var conn = new MySqlConnection("Server=127.0.0.1;Port=3306;Database=plposdev;UID=devpos;Pwd=happy123;Charset=utf8mb4;ConnectionReset=true;maxpoolsize=1"))
+                using (var conn = new MySqlConnection(connectionString))
                 {
                     await conn.OpenAsync();
                     if (SynchronizationContext.Current != null)
